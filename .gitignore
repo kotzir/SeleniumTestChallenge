@@ -1,0 +1,12 @@
+# Ignore Visual Studio temporary files, build results, and
+# build directories.
+
+# User-specific files
+.vs/
+.vs/*
+
+# Build directories
+bin/
+bin/*
+obj/
+obj/*
