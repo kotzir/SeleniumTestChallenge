@@ -18,17 +18,11 @@ namespace SeleniumTestChallenge.Steps
             _checkoutPage = new CheckoutPage(_driver);
         }
 
-        //[When(@"the user tries to continue without filling in a mandatory field")]
-        //public void WhenTheUserTriesToContinueWithoutFillingInAMandatoryField()
-        //{
-        //    Hooks.Hooks.LogInfo("Trying to continue without filling the mandatory fields");
-        //    _checkoutPage.ClickContinue();
-        //}
 
         [When(@"the user tries to continue without filling ""([^""]*)"", ""([^""]*)"" or ""([^""]*)""")]
         public void WhenTheUserTriesToContinueWithoutFillingOr(string p0, string p1, string p2)
         {
-            Hooks.Hooks.LogInfo("Trying to continue without filling the mandatory fields");
+            Hooks.Hooks.LogInfo($"Trying to continue with First Name '{p0}', Last Name '{p1}', Postal Code '{p2}'");
             _checkoutPage.FillForm(p0, p1, p2);
             _checkoutPage.ClickContinue();
         }
@@ -42,22 +36,12 @@ namespace SeleniumTestChallenge.Steps
             Assert.That(isElementDisplayed, Is.EqualTo(true));
         }
 
-        //[When(@"the user completes the form")]
-        //public void WhenTheUserCompletesTheForm()
-        //{
-        //    Hooks.Hooks.LogInfo("Filling the form");
-        //    _checkoutPage.FillForm("John", "Travolta", "65404");
-        //    _checkoutPage.ClickContinue();
-        //}
-
-        [When(@"the user completes the form with firstname ""([^""]*)"">, lastname ""([^""]*)""> and postal code ""([^""]*)""")]
+        [When(@"the user completes the form with firstname ""([^""]*)"", lastname ""([^""]*)"" and postal code ""([^""]*)""")]
         public void WhenTheUserCompletesTheFormWithFirstnameLastnameAndPostalCode(string p0, string p1, string p2)
         {
-            Hooks.Hooks.LogInfo("Filling the form");
-            _checkoutPage.FillForm(p0,p1,p2);
+            Hooks.Hooks.LogInfo($"Filling the form with First Name '{p0}', Last Name '{p1}' and Postal Code '{p2}'");
+            _checkoutPage.FillForm(p0, p1, p2);
             _checkoutPage.ClickContinue();
         }
-
-
     }
 }

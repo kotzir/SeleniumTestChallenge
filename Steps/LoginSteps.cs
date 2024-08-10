@@ -23,22 +23,13 @@ namespace SeleniumTestChallenge.Steps
             Hooks.Hooks.LogInfo("Navigating to the Saucedemo site.");
             _loginPage.NavigateToPage();
         }
-
-        [Given(@"the user logs in with a valid username and password")]
-        public void GivenTheUserLogsInWithAValidUsernameAndPassword()
-        {
-            Hooks.Hooks.LogInfo("Logging in with valid credentials.");
-            _loginPage.LoginWithValidCredentials("standard_user", "secret_sauce");
-        }
         
         [Given(@"the user logs in with username ""([^""]*)"" and password ""([^""]*)""")]
         public void GivenTheUserLogsInWithUsernameAndPassword(string p0, string p1)
         {
-            Hooks.Hooks.LogInfo("Logging in with valid credentials.");
+            Hooks.Hooks.LogInfo($"Logging in with username '{p0}' and password '{p1}'.");
             _loginPage.LoginWithValidCredentials(p0, p1);
         }
-
-
 
     }
 }
