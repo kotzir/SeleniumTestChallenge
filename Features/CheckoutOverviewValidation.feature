@@ -9,7 +9,7 @@ Scenario Outline: Verify the products added to the cart and their prices in the 
     When the user adds two random products to the cart
     And the user goes to the cart
     And the user clicks the checkout button
-    And the user completes the form with firstname "<firstname">, lastname "<lastname"> and postal code "<postalcode>"
+    And the user completes the form with firstname "<firstname>", lastname "<lastname>" and postal code "<postalcode>"
     Then the products and their prices are verified
 
     Examples: Valid Credentials and Info
