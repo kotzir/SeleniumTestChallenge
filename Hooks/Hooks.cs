@@ -5,6 +5,8 @@ using OpenQA.Selenium;
 using AventStack.ExtentReports.Gherkin.Model;
 using ScreenRecorderLib;
 using NLog;
+using NLog.Config;
+using NLog.Targets;
 
 namespace SeleniumTestChallenge.Hooks
 {
@@ -20,9 +22,6 @@ namespace SeleniumTestChallenge.Hooks
         protected static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
         private readonly ScenarioContext _scenarioContext;
-        //private readonly string applicationUrl = "https://www.saucedemo.com/";
-        //private readonly string userName = "standard_user";
-        //private readonly string password = "secret_sauce";
 
         public static string dir = AppDomain.CurrentDomain.BaseDirectory;
         public static string testResultPath = dir.Replace("bin\\x64\\Debug\\net6.0", "TestResults");
@@ -30,6 +29,24 @@ namespace SeleniumTestChallenge.Hooks
         public Hooks(ScenarioContext scenarioContext)
         {
             _scenarioContext = scenarioContext;
+            ConfigureLogging();
+        }
+
+        private static void ConfigureLogging()
+        {
+            var config = new LoggingConfiguration();
+
+            // Define the log file path
+            var logFilePath = Path.Combine(testResultPath, "application.log");
+
+            var fileTarget = new FileTarget("fileTarget")
+            {
+                FileName = logFilePath,
+                Layout = "${longdate}|${level:uppercase=true}|${message}${exception:format=toString}"
+            };
+
+            config.AddRule(NLog.LogLevel.Info, NLog.LogLevel.Fatal, fileTarget);
+            LogManager.Configuration = config;
         }
 
         [BeforeTestRun]
