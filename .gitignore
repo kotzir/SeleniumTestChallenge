@@ -10,3 +10,6 @@ bin/
 bin/*
 obj/
 obj/*
+
+# Feature.cs generation
+Features/*.feature.cs
