@@ -1,14 +1,12 @@
 ﻿using AventStack.ExtentReports;
 using AventStack.ExtentReports.Reporter.Configuration;
 using AventStack.ExtentReports.Reporter;
-using OpenQA.Selenium.Edge;
 using OpenQA.Selenium;
 using AventStack.ExtentReports.Gherkin.Model;
 using ScreenRecorderLib;
 using NLog;
-using TechTalk.SpecFlow;
 
-namespace SeleniumTestChallenge.StepDefinitions
+namespace SeleniumTestChallenge.Hooks
 {
     [Binding]
     public class Hooks
@@ -22,12 +20,17 @@ namespace SeleniumTestChallenge.StepDefinitions
         protected static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
         private readonly ScenarioContext _scenarioContext;
-        private readonly string applicationUrl = "https://www.saucedemo.com/";
-        private readonly string userName = "standard_user";
-        private readonly string password = "secret_sauce";
+        //private readonly string applicationUrl = "https://www.saucedemo.com/";
+        //private readonly string userName = "standard_user";
+        //private readonly string password = "secret_sauce";
 
-        public static String dir = AppDomain.CurrentDomain.BaseDirectory;
-        public static String testResultPath = dir.Replace("bin\\x64\\Debug\\net6.0", "TestResults");
+        public static string dir = AppDomain.CurrentDomain.BaseDirectory;
+        public static string testResultPath = dir.Replace("bin\\x64\\Debug\\net6.0", "TestResults");
+
+        public Hooks(ScenarioContext scenarioContext)
+        {
+            _scenarioContext = scenarioContext;
+        }
 
         [BeforeTestRun]
 
@@ -101,17 +104,17 @@ namespace SeleniumTestChallenge.StepDefinitions
         [AfterFeature]
         public static void AfterFeature(FeatureContext featureContext)
         {
-            
+
         }
 
         [BeforeScenario]
-        public void BeforeScenario(ScenarioContext scenarioContext)
+        public void BeforeScenario()
         {
-            scenarioName = featureName.CreateNode<Scenario>(scenarioContext.ScenarioInfo.Title);
+            scenarioName = featureName.CreateNode<Scenario>(_scenarioContext.ScenarioInfo.Title);
             Logger.Info("Opening browser");
-            IWebDriver driver = new EdgeDriver();
+            var driver = WebDriverManager.GetDriver();
             driver.Manage().Window.Maximize();
-            scenarioContext["driver"] = driver;
+            _scenarioContext["driver"] = driver;
         }
 
         [AfterScenario]
@@ -119,9 +122,9 @@ namespace SeleniumTestChallenge.StepDefinitions
         {
             Logger.Info("Closing the browser.");
 
-            if (scenarioContext["driver"] is IWebDriver driver)
+            if (scenarioContext["driver"] is IWebDriver)
             {
-                driver.Quit();
+                WebDriverManager.CloseDriver();
             }
         }
 
@@ -132,35 +135,68 @@ namespace SeleniumTestChallenge.StepDefinitions
         }
 
         [AfterStep]
-        public void AfterStep(ScenarioContext scenariocontext)
+        public void AfterStep()
         {
-            var stepType = scenariocontext.StepContext.StepInfo.StepDefinitionType.ToString();
-            //Console.WriteLine("Step type: " + stepType);
-            //Console.WriteLine("Step text: " + scenariocontext.StepContext.StepInfo.Text);
+            var stepType = _scenarioContext.StepContext.StepInfo.StepDefinitionType.ToString();
 
-            if (scenariocontext.TestError == null)
+            if (_scenarioContext.TestError == null)
             {
-                if (stepType == "Given")
-                    scenarioName.CreateNode<Given>(scenariocontext.StepContext.StepInfo.Text);
-                else if (stepType == "When")
-                    scenarioName.CreateNode<When>(scenariocontext.StepContext.StepInfo.Text);
-                else if (stepType == "Then")
-                    scenarioName.CreateNode<Then>(scenariocontext.StepContext.StepInfo.Text);
-                else if (stepType == "And")
-                    scenarioName.CreateNode<And>(scenariocontext.StepContext.StepInfo.Text);
+                switch (stepType)
+                {
+                    case "Given":
+                        scenarioName.CreateNode<Given>(_scenarioContext.StepContext.StepInfo.Text);
+                        break;
+                    case "When":
+                        scenarioName.CreateNode<When>(_scenarioContext.StepContext.StepInfo.Text);
+                        break;
+                    case "Then":
+                        scenarioName.CreateNode<Then>(_scenarioContext.StepContext.StepInfo.Text);
+                        break;
+                    case "And":
+                        scenarioName.CreateNode<And>(_scenarioContext.StepContext.StepInfo.Text);
+                        break;
+                }   
             }
-            else if (scenariocontext.TestError != null)
+            else
             {
-                if (stepType == "Given")
-                    scenarioName.CreateNode<Given>(scenariocontext.StepContext.StepInfo.Text).Fail(scenariocontext.TestError.Message);
-                else if (stepType == "When")
-                    scenarioName.CreateNode<When>(scenariocontext.StepContext.StepInfo.Text).Fail(scenariocontext.TestError.Message);
-                else if (stepType == "Then")
-                    scenarioName.CreateNode<Then>(scenariocontext.StepContext.StepInfo.Text).Fail(scenariocontext.TestError.Message);
-                else if (stepType == "And")
-                    scenarioName.CreateNode<And>(scenariocontext.StepContext.StepInfo.Text).Fail(scenariocontext.TestError.Message);
+                var errorMessage = _scenarioContext.TestError.Message;
+                switch (stepType)
+                {
+                    case "Given":
+                        scenarioName.CreateNode<Given>(_scenarioContext.StepContext.StepInfo.Text).Fail(_scenarioContext.TestError.Message);
+                        break;
+                    case "When":
+                        scenarioName.CreateNode<When>(_scenarioContext.StepContext.StepInfo.Text).Fail(_scenarioContext.TestError.Message);
+                        break;
+                    case "Then":
+                        scenarioName.CreateNode<Then>(_scenarioContext.StepContext.StepInfo.Text).Fail(_scenarioContext.TestError.Message);
+                        break;
+                    case "And":
+                        scenarioName.CreateNode<And>(_scenarioContext.StepContext.StepInfo.Text).Fail(_scenarioContext.TestError.Message);
+                        break;
+                }
             }
+        }
 
+        // Centralized logging methods
+        public static void LogInfo(string message)
+        {
+            Logger.Info(message);
+        }
+
+        public static void LogError(string message)
+        {
+            Logger.Error(message);
+        }
+
+        public static void LogDebug(string message)
+        {
+            Logger.Debug(message);
+        }
+
+        public static void LogWarn(string message)
+        {
+            Logger.Warn(message);
         }
     }
 }
